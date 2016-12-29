@@ -95,16 +95,18 @@ class Driver_7Seg:
 
 class SerialDriver_7Seg(Driver_7Seg):
     def __init__(self, serial_param):
+        import serial
         super(SerialDriver_7Seg, self).__init__()
-        self.serial_param = serial_param
+        self.connection = serial.Serial(*serial_param)
+
+    def __del__(self):
+        self.connection.close()
 
     def __enter__(self):
-        import serial
-        self.connection = serial.Serial(*self.serial_param)
         return self.connection
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.connection.close()
+        pass
 
 if __name__ == '__main__':
     d = SerialDriver_7Seg(('/dev/ttyUSB0', 9600))
