@@ -10,8 +10,47 @@ class PrintObject:
         self.nbr_digit = nbr_digit
         self.start_digit = start_digit
 
+    def need_print(self):
+        raise NotImplementedError
+
     def print(self, drv: driver.Driver_7Seg):
         raise NotImplementedError
+
+
+class BaseStatic(PrintObject):
+    def __init__(self, start_digit: int=0, nbr_digit: int=None):
+        super(BaseStatic, self).__init__(start_digit, nbr_digit)
+        self.redraw=True
+
+    def need_print(self):
+        return self.redraw
+
+    def print(self, drv: driver.Driver_7Seg):
+        self.redraw = False
+
+
+class Percentage(BaseStatic):
+    def __init__(self, max_value: int):
+        self.max_value = max_value
+        self.first = True
+        self.percent = 0
+        super(Percentage, self).__init__(0, 4)
+
+    def print_percent_sign(self, drv):
+        drv.write_dot(drv.DOT_APOSTROPHE | drv.DOT_DIGIT4)
+        drv.write_seg(3, drv.SEG_G)
+
+    def update(self, i):
+        self.percent = i * 100.0 / self.max_value
+        self.redraw = True
+
+    def print(self, drv: driver.Driver_7Seg):
+        if self.first:
+            self.print_percent_sign(drv)
+            self.first = False
+        drv.set_cursor(0)
+        super(Percentage, self).print(drv)
+        drv.print('%3d' % self.percent)
 
 
 class BaseAnim(PrintObject):
@@ -22,14 +61,16 @@ class BaseAnim(PrintObject):
         self.step_time = step_time
         self.next_update = 0
 
-    def progress(self):
+    def need_print(self):
         now = time.time()
         if self.next_update < now:
             self.next_update = now + self.step_time
-            self.step += 1
-            self.step %= self.nbr_step
             return True
         return False
+
+    def print(self, drv: driver.Driver_7Seg):
+        self.step += 1
+        self.step %= self.nbr_step
 
 
 class WheelAnim(BaseAnim):
@@ -45,6 +86,7 @@ class WheelAnim(BaseAnim):
             drv.write_seg(self.start_digit, drv.SEG_G)
         elif self.step == 3:
             drv.write_seg(self.start_digit, drv.SEG_F)
+        super(WheelAnim, self).print(drv)
 
 
 class TextAnim(BaseAnim):
@@ -58,11 +100,14 @@ class TextAnim(BaseAnim):
         sub_txt += ' ' * (self.nbr_digit-len(sub_txt)) # feed with spaces
         sub_txt = sub_txt[:self.nbr_digit]
         drv.print(sub_txt)
+        super(TextAnim, self).print(drv)
 
 
 class Simple7SegAsnyc(Thread):
+    """ Base class for helper with more than one printable object """
     def __init__(self, drv: driver.Driver_7Seg):
         self.stop = False
+        self.do_clear = True
         self.drv = drv
         self.anim= []
         Thread.__init__(self)
@@ -70,12 +115,17 @@ class Simple7SegAsnyc(Thread):
 
     def print_anim(self, anim: []):
         self.anim = anim
+        self.do_clear = True
 
     def run(self):
         self.stop = False
         while not self.stop:
+            if self.do_clear:
+                self.drv.clear()
+                self.do_clear = False
+
             for anim in self.anim:
-                if anim.progress():
+                if anim.need_print():
                     anim.print(self.drv)
             time.sleep(0.1)
 
@@ -85,14 +135,20 @@ class Simple7SegAsnyc(Thread):
 
 
 if __name__ == '__main__':
-    drv = driver.SerialDriver_7Seg(('/dev/ttyUSB0', 9600))
+    drv = driver.SerialDriver_7Seg(('COM4', 9600))
     helper = Simple7SegAsnyc(drv)
+
+    progress = Percentage(15)
+    helper.print_anim([progress])
+    for i in range(15):
+        progress.update(i)
+        time.sleep(0.4)
 
     anims = []
     anims.append(TextAnim('123456', 1, 2))
     anims.append(WheelAnim(0))
     anims.append(WheelAnim(3))
-
     helper.print_anim(anims)
     time.sleep(10)
+
     helper.join()

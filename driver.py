@@ -26,7 +26,7 @@ class Driver_7Seg:
             c.write(values)
 
     def print(self, txt: str):
-        valid = '123456789abcdefghijlnopqrstuy -'
+        valid = '0123456789abcdefghijlnopqrstuy -'
         for c in txt:
             if c.lower() not in valid:
                 raise ValueError(repr(c) + ' is not legal (' + txt + ')')
