@@ -1,8 +1,6 @@
 import socket
 from simple7seg import Simple7SegAsnyc, driver, TextAnim
-
-UDP_IP = "127.0.0.1"
-UDP_PORT = 45454
+from settings import Settings
 
 
 class Server(Simple7SegAsnyc):
@@ -28,7 +26,7 @@ class Server(Simple7SegAsnyc):
 
 if __name__ == '__main__':
     drv = driver.SerialDriver_7Seg(('COM4', 9600))
-    srv = Server(drv, UDP_IP, UDP_PORT)
+    srv = Server(drv, Settings.Server.ip, Settings.Server.port)
 
     sock = socket.socket(socket.AF_INET,  # Internet
                          socket.SOCK_DGRAM)  # UDP
