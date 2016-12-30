@@ -117,22 +117,25 @@ class Simple7SegAsnyc(Thread):
         self.anim = anim
         self.do_clear = True
 
+    def process(self):
+        if self.do_clear:
+            self.drv.clear()
+            self.do_clear = False
+
+        for anim in self.anim:
+            if anim.need_print():
+                anim.print(self.drv)
+
     def run(self):
         self.stop = False
         while not self.stop:
-            if self.do_clear:
-                self.drv.clear()
-                self.do_clear = False
-
-            for anim in self.anim:
-                if anim.need_print():
-                    anim.print(self.drv)
+            self.process()
             time.sleep(0.1)
 
     def join(self, timeout=None):
         self.stop = True
         Thread.join(self, timeout)
-
+        self.drv.clear()
 
 if __name__ == '__main__':
     drv = driver.SerialDriver_7Seg(('COM4', 9600))
