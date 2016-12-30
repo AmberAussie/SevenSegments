@@ -1,4 +1,3 @@
-
 import time
 
 
@@ -108,8 +107,16 @@ class SerialDriver_7Seg(Driver_7Seg):
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+
+def driver_factory(driver_settings):
+    if driver_settings.type == 'serial':
+        return SerialDriver_7Seg(driver_settings.args)
+    raise NotImplementedError
+
+
 if __name__ == '__main__':
-    d = SerialDriver_7Seg(('/dev/ttyUSB0', 9600))
+    from settings import Settings
+    d = driver_factory(Settings.Driver)
 
     # change brightness
     d.set_brightness(255)

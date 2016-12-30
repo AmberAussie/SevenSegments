@@ -109,10 +109,10 @@ class TextAnim(BaseAnim):
 
 class Simple7SegAsnyc(Thread):
     """ Base class for helper with more than one printable object """
-    def __init__(self, drv: driver.Driver_7Seg):
+    def __init__(self, driver_settings):
         self.stop = False
         self.do_clear = True
-        self.drv = drv
+        self.drv = driver.driver_factory(driver_settings)
         self.anim= []
         Thread.__init__(self)
         self.start()
@@ -142,8 +142,8 @@ class Simple7SegAsnyc(Thread):
         self.drv.clear()
 
 if __name__ == '__main__':
-    drv = driver.SerialDriver_7Seg(('COM4', 9600))
-    helper = Simple7SegAsnyc(drv)
+    from settings import Settings
+    helper = Simple7SegAsnyc(Settings.Driver)
 
     progress = Percentage(15)
     helper.print_anim([progress])

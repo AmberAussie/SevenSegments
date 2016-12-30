@@ -1,18 +1,17 @@
 import socket
 from simple7seg import Simple7SegAsnyc, driver, TextAnim
-from settings import Settings
 
 
 class Server(Simple7SegAsnyc):
     TIMEOUT = 0.5
 
-    def __init__(self, drv: driver.Driver_7Seg, ip, port):
+    def __init__(self, settings):
         self.sock = socket.socket(socket.AF_INET,  # Internet
                                   socket.SOCK_DGRAM)  # UDP
-        self.sock.bind((ip, port))
+        self.sock.bind((settings.Server.ip, settings.Server.port))
         self.sock.settimeout(Server.TIMEOUT)
         self.txt = ''
-        super(Server, self).__init__(drv)
+        super(Server, self).__init__(settings.Driver)
 
     def process(self):
         try:
@@ -25,8 +24,9 @@ class Server(Simple7SegAsnyc):
         super(Server, self).process()
 
 if __name__ == '__main__':
-    drv = driver.SerialDriver_7Seg(('COM4', 9600))
-    srv = Server(drv, Settings.Server.ip, Settings.Server.port)
+    from settings import Settings
+
+    srv = Server(Settings)
 
     sock = socket.socket(socket.AF_INET,  # Internet
                          socket.SOCK_DGRAM)  # UDP
