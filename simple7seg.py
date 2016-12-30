@@ -91,7 +91,11 @@ class WheelAnim(BaseAnim):
 
 class TextAnim(BaseAnim):
     def __init__(self, txt: str, start_digit: int=0, nbr_digit: int=None, step_time: float=0.7):
-        super(TextAnim, self).__init__(len(txt), step_time, start_digit, nbr_digit)
+        if len(txt) > 4:
+            nb_step = len(txt)
+        else:
+            nb_step = 1
+        super(TextAnim, self).__init__(nb_step, step_time, start_digit, nbr_digit)
         self.txt = txt
 
     def print(self, drv: driver.Driver_7Seg):
