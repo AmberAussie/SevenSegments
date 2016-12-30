@@ -30,10 +30,11 @@ if __name__ == '__main__':
 
     sock = socket.socket(socket.AF_INET,  # Internet
                          socket.SOCK_DGRAM)  # UDP
-    try:
-        while True:
-            msg = input('>')
-            sock.sendto(msg.encode(), (UDP_IP, UDP_PORT))
-    except KeyboardInterrupt:
-        pass
+    while True:
+        msg = input('>')
+        if msg == 'exit':  # as X is forbidden
+            break
+        sock.sendto(msg.encode(), (Settings.Server.ip, Settings.Server.port))
+    print('closing...')
     srv.join(2)
+    print('closed')
