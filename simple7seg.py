@@ -1,6 +1,6 @@
 import driver
 import time
-from threading import Thread
+from job import Job, AsyncExecute
 
 
 class PrintObject:
@@ -107,15 +107,12 @@ class TextAnim(BaseAnim):
         super(TextAnim, self).print(drv)
 
 
-class Simple7SegAsnyc(Thread):
+class Simple7Seg(Job):
     """ Base class for helper with more than one printable object """
     def __init__(self, driver_settings):
-        self.stop = False
         self.do_clear = True
         self.drv = driver.driver_factory(driver_settings)
         self.anim= []
-        Thread.__init__(self)
-        self.start()
 
     def print_anim(self, anim: []):
         self.anim = anim
@@ -130,20 +127,11 @@ class Simple7SegAsnyc(Thread):
             if anim.need_print():
                 anim.print(self.drv)
 
-    def run(self):
-        self.stop = False
-        while not self.stop:
-            self.process()
-            time.sleep(0.1)
-
-    def join(self, timeout=None):
-        self.stop = True
-        Thread.join(self, timeout)
-        self.drv.clear()
 
 if __name__ == '__main__':
     from settings import Settings
-    helper = Simple7SegAsnyc(Settings.Driver)
+    helper = Simple7Seg(Settings.Driver)
+    task = AsyncExecute(helper)
 
     progress = Percentage(15)
     helper.print_anim([progress])
@@ -158,4 +146,4 @@ if __name__ == '__main__':
     helper.print_anim(anims)
     time.sleep(10)
 
-    helper.join()
+    task.join()

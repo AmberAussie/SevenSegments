@@ -108,9 +108,22 @@ class SerialDriver_7Seg(Driver_7Seg):
         pass
 
 
+class FileDriver_7Seg(Driver_7Seg):
+    def __init__(self, file_param):
+        self.path = file_param[0]
+
+    def __enter__(self):
+        return open(self.path, 'wb')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
 def driver_factory(driver_settings):
     if driver_settings.type == 'serial':
         return SerialDriver_7Seg(driver_settings.args)
+    if driver_settings.type == 'file':
+        return FileDriver_7Seg(driver_settings.args)
     raise NotImplementedError
 
 

@@ -1,8 +1,8 @@
 import socket
-from simple7seg import Simple7SegAsnyc, driver, TextAnim
+from simple7seg import Simple7Seg, TextAnim
 
 
-class Server(Simple7SegAsnyc):
+class Server(Simple7Seg):
     TIMEOUT = 0.5
 
     def __init__(self, settings):
@@ -27,14 +27,5 @@ if __name__ == '__main__':
     from settings import Settings
 
     srv = Server(Settings)
-
-    sock = socket.socket(socket.AF_INET,  # Internet
-                         socket.SOCK_DGRAM)  # UDP
     while True:
-        msg = input('>')
-        if msg == 'exit':  # as X is forbidden
-            break
-        sock.sendto(msg.encode(), (Settings.Server.ip, Settings.Server.port))
-    print('closing...')
-    srv.join(2)
-    print('closed')
+        srv.process()
