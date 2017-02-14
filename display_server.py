@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import socket
 from simple7seg import Simple7Seg, TextAnim
 
@@ -10,8 +11,8 @@ class Server(Simple7Seg):
                                   socket.SOCK_DGRAM)  # UDP
         self.sock.bind((settings.Server.ip, settings.Server.port))
         self.sock.settimeout(Server.TIMEOUT)
-        self.txt = ''
         super(Server, self).__init__(settings.Driver)
+        self.print_anim([TextAnim('LISTEN on '+str(settings.Server.port))])
 
     def process(self):
         try:
