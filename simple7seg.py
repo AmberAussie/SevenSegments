@@ -132,6 +132,7 @@ if __name__ == '__main__':
     from settings import Settings
     helper = Simple7Seg(Settings.Driver)
     task = AsyncExecute(helper)
+    task.start()
 
     progress = Percentage(15)
     helper.print_anim([progress])

@@ -21,7 +21,7 @@ class AsyncExecute(Thread):
         self.stop = False
         while not self.stop:
             self.job.process()
-            time.sleep(0.1)
+            time.sleep(self.refresh_time)
 
     def join(self, timeout=None):
         self.stop = True
